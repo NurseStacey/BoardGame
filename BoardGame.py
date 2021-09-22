@@ -56,10 +56,85 @@ def control_panel_event_handler(event):
         root.destroy()
     
     if which_button_pressed == 'Back_1_Move':
-        pass
+        
+        if the_game.is_the_beginning():
+            return
+
+        current_board = the_game.get_current_board()
+        the_game.back_one_move()
+        new_board = the_game.get_current_board()
+        the_game.set_which_player(current_board.which_player)
+        the_game.set_pieces_current_board()
+
+        pieces_to_remove = []
+        pieces_to_flip = []
+        pieces_to_add = [] #for othello this is always empty
+        # now we compare the current_board with prior_board
+        for one_piece in current_board.this_board:
+            new_piece = new_board.find_piece(one_piece)
+            if  new_piece == -1:  # need to remove this piece
+                pieces_to_remove.append(one_piece)
+            elif not(new_piece.color == one_piece.color):
+                pieces_to_flip.append(new_piece)
+
+        for one_piece in new_board.this_board:
+            same_piece = current_board.find_piece(one_piece)
+            if same_piece == -1:
+                pieces_to_add.append(one_piece)
+
+        # now take care of canvas
+        for one_piece in pieces_to_remove:
+            board_canvas.delete_piece(one_piece.position)
+
+        for one_piece in pieces_to_add:
+            board_canvas.add_piece(one_piece.position, one_piece.color)
+
+        for one_piece in pieces_to_flip:
+            board_canvas.add_piece(one_piece.position, one_piece.color)
+
+        update_prorgress_bar("Player {0}'s turn".format(the_game.current_player.get_player_number()+1))
 
     if which_button_pressed == 'Forward_1_Move':
-        pass
+        # basically the same as before but in reverse
+        if the_game.is_the_end():
+            return
+
+        current_board = the_game.get_current_board()
+        the_game.forward_one_move()
+        new_board = the_game.get_current_board()
+        the_game.set_which_player(new_board.which_player)
+        the_game.set_next_player()
+        the_game.set_pieces_current_board()
+
+        pieces_to_remove = []
+        pieces_to_flip = []
+        pieces_to_add = []  # for othello this is always empty
+        # now we compare the current_board with prior_board
+        for one_piece in current_board.this_board:
+            new_piece = new_board.find_piece(one_piece)
+            if new_piece == -1:  # need to remove this piece
+                pieces_to_remove.append(one_piece)
+            elif not(new_piece.color == one_piece.color):
+                pieces_to_flip.append(new_piece)
+
+        for one_piece in new_board.this_board:
+            same_piece = current_board.find_piece(one_piece)
+            if same_piece == -1:
+                pieces_to_add.append(one_piece)
+
+        # now take care of canvas
+        for one_piece in pieces_to_remove:
+            board_canvas.delete_piece(one_piece.position)
+
+        for one_piece in pieces_to_add:
+            board_canvas.add_piece(one_piece.position, one_piece.color)
+
+        for one_piece in pieces_to_flip:
+            board_canvas.add_piece(one_piece.position, one_piece.color)
+
+        update_prorgress_bar("Player {0}'s turn".format(
+            the_game.current_player.get_player_number()+1))
+
     # if control_panel.start_button_clicked(x_coordinate, y_coordinate):
     if which_button_pressed == 'start':
         board_canvas.set_row_column(8, 8)
@@ -87,6 +162,9 @@ def control_panel_event_handler(event):
             which_player = 1
             choose_color_for_player()
 
+    if which_button_pressed == 'print_moves':
+        the_game.print_moves()
+
 def play_board_event_handler(event):
     
     if the_game.is_game_in_progress():
@@ -100,12 +178,13 @@ def play_board_event_handler(event):
 
             #  update the board
             # this is not the game, just represents the game visually
+
             place_piece(
                 grid_position, the_game.current_player.get_color(), which_pieces_flipped)
             board_canvas.flip_pieces(
                 which_pieces_flipped,  the_game.current_player.get_color())
             the_game.add_board()
-            # board_canvas.add_piece(grid_position,  the_game.which_player_turn)
+            
             board_canvas.update()
 
             #now get the game ready for the next player

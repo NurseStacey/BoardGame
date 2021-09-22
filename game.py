@@ -1,14 +1,30 @@
 import copy
-# from constants import *
 from player import Player_Class
 
 #position = [x,y]
 class One_Piece_Class():
 
     def __init__(self, position, color, action):
+        # there may be a redundancy between color and action.  Meant to give greater functionality if other games are developed
         self.position = position
         self.color = color
-        self.action = 'new_piece'
+        self.action = action
+
+class One_Board_Class():
+
+    def __init__(self, which_player, this_board):
+
+        self.which_player = which_player  #this is the player who made the move that led to this board
+        self.this_board = this_board  #these are all the pieces and their color and the action associate 
+                                        #after the move that was made
+    def find_piece(self, piece):
+        
+        for one_piece in self.this_board:
+            if one_piece.position == piece.position:
+                return (one_piece)
+        
+        #if the piece isn't here then return -1
+        return -1
 
 class Game_Class():
     
@@ -20,14 +36,31 @@ class Game_Class():
         self.number_rows=8
         self.number_columns = 8
         self.the_players = the_players
-        self.actions_by_turn = [] # this is a list of actions on pieces, either adding new pieces or flipping old ones
-        self.the_board = [] 
+
+        self.the_boards = [] 
         self.which_move = 0
+
+    def set_pieces_current_board(self):
+
+        self.pieces = []
+        
+        for one_piece in self.the_boards[self.which_move].this_board:
+            self.pieces.append(copy.deepcopy(one_piece))
+
 
     def start_game(self, which):
         self.moves=[]   # reset the moves
+        self.the_boards=[]
         self.game_in_progress = True
         self.current_player = which
+
+    def forward_one_move(self):
+        # self.pieces.pop()
+        self.which_move += 1
+
+    def back_one_move(self):
+
+        self.which_move -= 1
 
     def add_board(self):
 
@@ -35,12 +68,7 @@ class Game_Class():
         for one_piece in self.pieces:
             this_board.append(copy.deepcopy(one_piece))
 
-        self.the_board.append(this_board)
-
-    def get_player(self):
-        pass
-        # for one_player in self.the_players:
-        #     if one_player.
+        self.the_boards.append(One_Board_Class(self.current_player, this_board))
 
     def is_game_in_progress(self):
         return self.game_in_progress
@@ -64,6 +92,12 @@ class Game_Class():
     def is_tile_opposite_from_current_player(self, position):
         tile_state = self.get_tile_state(position)
         return not(tile_state == -1) and not(tile_state == self.current_player.get_color())
+
+    def is_the_end(self):
+        return self.which_move==(len(self.the_boards)-1)
+
+    def is_the_beginning(self):
+        return self.which_move==0
 
     def get_valid_moves(self):
         
@@ -127,6 +161,8 @@ class Game_Class():
     def is_valid_move(self, position):
 
 
+        if position[0]<0 or position[1]<0:
+            return False
         #for backgammon, if piece is taken up by another tile it isn't valie
         if not(self.get_tile_state(position)==-1):
             return False
@@ -152,27 +188,20 @@ class Game_Class():
 
         return False
 
-    def add_move(self, position, color, which_pieces_flipped):
-
+    def new_move(self):
         self.which_move += 1
 
-        if self.which_move==len(self.moves):
-            self.moves.append(One_Piece_Class(position, color, 'new_piece'))
-            self.pieces.append(One_Piece_Class(position, color, 'new_piece'))
-            this_turn_actions = []
-            # this_turn_actions.append(One_Piece_Class(position, color, 'new_piece'))
-            # for one_piece in which_pieces_flipped:
-            #     this_turn_actions.append(One_Piece_Class(one_piece, color, 'flipped'))
-        else:
-            self.moves[self.which_move] = self.moves.append(
-                One_Piece_Class(position, color, 'new_piece'))
-            self.pieces[self.which_move] = self.moves.append(
-                One_Piece_Class(position, color, 'new_piece'))
+    def last_move(self):
+        self.which_move -= 1
 
+    def add_move(self, position, color, which_pieces_flipped):
+
+        self.moves.append(One_Piece_Class(position, color, 'new_piece'))
+        self.pieces.append(One_Piece_Class(position, color, 'new_piece'))
 
     def get_current_board(self):
 
-        return self.the_board[self.which_move] 
+        return self.the_boards[self.which_move] 
 
     def add_piece(self, position, color):
         self.pieces.append(One_Piece_Class(position, color, 'new_piece'))
@@ -224,7 +253,15 @@ class Game_Class():
                         next_tile[0] = next_tile[0] - x_direction
                         next_tile[1] = next_tile[1] - y_direction
                     break
+        
+        self.new_move()
 
+        # need to remove the old boards if they undid moves
+        while self.which_move<len(self.the_boards):
+            self.the_boards.pop()
+
+        
+        
         return pieces_flipped
 
     def set_next_player(self):
@@ -233,6 +270,14 @@ class Game_Class():
             if self.current_player == self.the_players[which_player]:
                 self.current_player = self.the_players[(
                     which_player+1) % len(self.the_players)]
+                break
+
+    def set_last_player(self):
+
+        for which_player in range(len(self.the_players)):
+            if self.current_player == self.the_players[which_player]:
+                self.current_player = self.the_players[(
+                    which_player-1) % len(self.the_players)]
                 break
 
     def calculate_score(self):
@@ -245,3 +290,15 @@ class Game_Class():
                     score[which_player] += 1
 
         return score
+
+    def print_moves(self):
+
+        file1 = open('moves.txt', 'w')
+
+        for one_move in self.moves:
+            one_line = '{0} \t {1} \t'.format(
+                one_move.position[0], one_move.position[1]) + one_move.color + '\n'
+                
+            file1.write(one_line)
+
+        file1.close()

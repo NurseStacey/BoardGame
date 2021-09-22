@@ -127,59 +127,27 @@ class Control_Panel_Class(tk.Canvas):
         #  exit button
         self.make_button(30, 30, 60, 60, 'EXIT',
                          'exit', get_color('firebrick'))
-        # self.exit_button = button_class(30,30,60,60)
-        # self.create_rectangle(self.exit_button.x_top, self.exit_button.y_top, self.exit_button.x_bottom,
-        #                       self.exit_button.y_bottom, outline=black, fill=firebrick)
-        # # self.create_line(self.exit_button.x_top, self.exit_button.y_top, self.exit_button.x_bottom,
-        # #                  self.exit_button.y_bottom, fill=black)
-        # # self.create_line(self.exit_button.x_top, self.exit_button.y_bottom, self.exit_button.x_bottom,
-        # #                  self.exit_button.y_top, fill=black)
-        # self.create_text((self.exit_button.x_top + self.exit_button.x_bottom)/2, self.exit_button.y_top-2-10, fill=black,
-        #                  font='Times 10', text='EXIT')
 
         #   start button
         self.make_button(120, 30, 150, 60, 'START',
                          'start', get_color('lawngreen'))
-        # self.start_button = button_class(120, 30, 150, 60)
-        # self.create_rectangle(self.start_button.x_top, self.start_button.y_top, self.start_button.x_bottom,
-        #                       self.start_button.y_bottom, outline=black, fill=lawngreen)
-
-        # self.create_text((self.start_button.x_top + self.start_button.x_bottom)/2, self.start_button.y_top-2-10, fill=black,
-        #                  font='Times 10', text='START')
-
-        # #   test button
-        # self.make_button(30, 120, 60, 150, 'Player 1 Color',
-        #                  'player_1_color', salmon)
-        # self.test_button = button_class(120, 120, 150, 150)
-        # self.create_rectangle(self.test_button.x_top, self.test_button.y_top, self.test_button.x_bottom,
-        #                       self.test_button.y_bottom, outline=black, fill=black)
-
-        # self.create_text((self.test_button.x_top + self.test_button.x_bottom)/2, self.test_button.y_top-2-10, fill=black,
-        #                  font='Times 10', text='TEST')
 
         #   select player 1 color button
         self.make_button(30, 120, 60, 150, 'Player 1 Color',
                          'player_1_color', player1_color)
-        # self.select_player_1_color = button_class(30, 120, 60, 150)
-        # self.create_rectangle(self.select_player_1_color.x_top, self.select_player_1_color.y_top, self.select_player_1_color.x_bottom,
-        #                       self.select_player_1_color.y_bottom, outline=black, fill=salmon)
-
-        # self.create_text((self.select_player_1_color.x_top + self.select_player_1_color.x_bottom)/2, self.select_player_1_color.y_top-2-10, fill=black,
-        #                  font='Times 10', text='Player 1 Color')
 
         #   select player 2 color button
         self.make_button(120, 120, 150, 150, 'Player 2 Color', 'player_2_color', player2_color)
-        # self.select_player_2_color = button_class(30, 210, 60, 240)
-        # self.create_rectangle(self.select_player_2_color.x_top, self.select_player_2_color.y_top, self.select_player_2_color.x_bottom,
-        #                       self.select_player_2_color.y_bottom, outline=black, fill=cornsilk)
 
-        # self.create_text((self.select_player_2_color.x_top + self.select_player_2_color.x_bottom)/2, self.select_player_2_color.y_top-2-10, fill=black,
-        #                  font='Times 10', text='Player 2 Color')
 
         self.make_button(30, 210, 60, 240, 'Back 1 Move',
                          'Back_1_Move', 'teal')
+
         self.make_button(120, 210, 150, 240, 'Forward 1 Move',
                          'Forward_1_Move', 'teal')
+
+        self.make_button(30, 300, 60, 330, 'Print Moves',
+                         'print_moves', 'lavender')
 
         self.bind("<Button-1>", button_click_event)
         self.update()
