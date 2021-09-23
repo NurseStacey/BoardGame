@@ -54,6 +54,13 @@ class Game_Class():
         self.game_in_progress = True
         self.current_player = which
 
+    def back_forward_move(self, direction):
+
+        if direction == 'go_back':
+            self.back_one_move()
+        elif direction == 'go_forward':
+            self.forward_one_move()
+            
     def forward_one_move(self):
         # self.pieces.pop()
         self.which_move += 1

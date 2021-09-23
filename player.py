@@ -5,6 +5,10 @@ class Player_Class():
         
         self.player_color_hex = color
         self.which_player = which_player
+        self.this_AI = None
+
+    def set_AI(self, this_AI):
+        self.this_AI = this_AI
 
     def get_color(self):
 

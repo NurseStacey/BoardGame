@@ -1,5 +1,6 @@
 import tkinter as tk
 import math
+from tkinter.constants import LEFT
 from constants import *
 
 #position = [x,y]
@@ -68,13 +69,13 @@ class Board_Class(tk.Canvas):
         grid_position = [0,0]
         grid_position[0]=math.floor(coordinate_position[0]/self.width_delta)
 
-        if (abs((grid_position[0]+1)*self.height_delta-coordinate_position[0])<15 or
-                abs(grid_position[0]*self.height_delta-coordinate_position[0]) < 15):
+        if (abs((grid_position[0]+1)*self.width_delta-coordinate_position[0])<10 or
+                abs(grid_position[0]*self.width_delta-coordinate_position[0]) < 10):
             grid_position[0]=-1
 
         grid_position[1] = math.floor(coordinate_position[1]/self.height_delta)
-        if (abs((grid_position[1]+1)*self.height_delta-coordinate_position[1])<15 or
-            abs(grid_position[1]*self.height_delta-coordinate_position[1]) < 15):
+        if (abs((grid_position[1]+1)*self.height_delta-coordinate_position[1])<10 or
+            abs(grid_position[1]*self.height_delta-coordinate_position[1]) < 10):
             grid_position[1] = -1
 
         return grid_position
@@ -93,6 +94,15 @@ class Board_Class(tk.Canvas):
         self.create_oval(int(position[0]*self.width_delta)+8, int(position[1]*self.height_delta)+8,
                          int((position[0]+1)*self.width_delta)-8, int((position[1]+1)*self.height_delta)-8,
                          fill=color, tag='square{0}{1}'.format(position[0], position[1]))
+
+        self.board_pieces.append(position)
+
+    def add_text(self, position, text):
+        if position in self.board_pieces:
+            self.delete_piece(position)
+
+        x=1
+        self.create_text(int(position[0]*self.width_delta)+4, int(position[1]*self.height_delta)+8, anchor=tk.W, text=text, fill=get_color('black'), tag='square{0}{1}'.format(position[0], position[1]))
 
         self.board_pieces.append(position)
 
@@ -116,6 +126,11 @@ class Board_Class(tk.Canvas):
 
         self.add_piece([1,1], the_colors[1].hex)
         self.add_piece([9, 1], the_colors[1].hex)
+
+    def create_AI_list(self, AI_lables):
+
+        for row, one_AI in enumerate(AI_lables):
+            self.add_text([int(math.floor(row/8)), (row % 8)+1], one_AI)
 
 class Control_Panel_Class(tk.Canvas):
    
@@ -144,9 +159,15 @@ class Control_Panel_Class(tk.Canvas):
                          'Back_1_Move', 'teal')
 
         self.make_button(120, 210, 150, 240, 'Forward 1 Move',
-                         'Forward_1_Move', 'teal')
+                         'Forward_1_Move', 'yellow')
 
-        self.make_button(30, 300, 60, 330, 'Print Moves',
+        self.make_button(30, 300, 60, 330, 'AI Player 1',
+                         'AI_Player_1', 'pink')
+
+        self.make_button(120, 300, 150, 330, 'AI Player 2',
+                         'AI_Player_2', 'DeepPink')
+
+        self.make_button(30, 390, 60, 410, 'Print Moves',
                          'print_moves', 'lavender')
 
         self.bind("<Button-1>", button_click_event)
