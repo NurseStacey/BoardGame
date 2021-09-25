@@ -1,11 +1,24 @@
 import random
 import copy
 
+class Location_Value_Class():
+
+    def __init__(self, x, y, value):
+        self.x = x
+        self.y = y
+        self.value = value
+        
+
 class AI_Class():
     lable = 'Base AI'
 
     def __init__(self):
-        pass
+        
+        self.location_values = []
+        self.uses_location_value = False
+
+    def is_location_value_based(self):
+        return self.uses_location_value
 
     def get_move(self, the_game):
         #this is the default
@@ -14,12 +27,16 @@ class AI_Class():
         valid_moves = the_game.get_valid_moves()
 
         return(valid_moves[0])
+    
+    def add_location(self, x, y, value):
+
+        self.location_values.append(Location_Value_Class(x,y,value))
 
 class AI_Random_Move(AI_Class):
     lable = 'Random Move'
 
     def __init__(self):
-        pass
+        super().__init__()
 
     def get_move(self, the_game):
 
@@ -27,12 +44,10 @@ class AI_Random_Move(AI_Class):
 
         return(valid_moves[random.randrange(len(valid_moves))])
 
-
-
 class AI_Best_Score(AI_Class):
     lable = 'Best Score'
     def __init__(self):
-        pass
+        super().__init__()
 
     def get_move(self, the_game):
 
@@ -67,7 +82,7 @@ class AI_Defense(AI_Class):
     lable = 'Defense'
 
     def __init__(self):
-        pass
+        super().__init__()
 
     def get_move(self, the_game):
         
@@ -99,3 +114,11 @@ class AI_Defense(AI_Class):
                     possible_moves.append(one_move)
 
         return possible_moves[random.randrange(len(possible_moves))]
+
+class AI_Location_Value(AI_Class):
+    lable = 'Location Value'
+
+    def __init__(self):
+        super().__init__()
+        #need to overide
+        self.uses_location_value = True

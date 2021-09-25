@@ -40,8 +40,21 @@ def control_panel_event_handler(event):
         the_players[which_player].set_AI(AI_list[index]())
 
         board_canvas.remove_all_pieces()
-        board_canvas.set_mouse_event_handler(
+
+        if the_players[which_player].this_AI.is_location_value_based():
+            location_value_for_AI()
+        else:
+            board_canvas.set_mouse_event_handler(
             play_board_event_handler)
+
+    def location_value_for_AI():
+        board_canvas.set_row_column(
+            control_panel.get_number_of_rows()+2, control_panel.get_number_of_columns()+2)
+        board_canvas.build_board()
+        board_canvas.create_outline(1,2, control_panel.get_number_of_columns()+1, control_panel.get_number_of_rows())
+
+        board_canvas.add_text([1, 0], 'Value')
+
 
     def choose_color_for_player():
         board_canvas.set_row_column(11, 11)
@@ -290,39 +303,26 @@ def step_back_forward(direction):
 
 def play_board_event_handler(event):
     
-    if the_game.is_game_in_progress():
-        x_coordinate = event.x
-        y_coordinate = event.y
-        grid_position = board_canvas.convert_coordinates(
-            [x_coordinate, y_coordinate])
+    try:
+        if the_game.is_game_in_progress():
+            x_coordinate = event.x
+            y_coordinate = event.y
+            grid_position = board_canvas.convert_coordinates(
+                [x_coordinate, y_coordinate])
 
-        if the_game.is_valid_move(grid_position):
-            spot_chosen(grid_position)
-            # which_pieces_flipped = the_game.place_piece(grid_position)
+            if the_game.is_valid_move(grid_position):
+                spot_chosen(grid_position)
+                
+                evaluate_for_more_moves()
 
-            # #  update the board
-            # # this is not the game, just represents the game visually
-
-            # place_piece(
-            #     grid_position, the_game.current_player.get_color(), which_pieces_flipped)
-            # board_canvas.flip_pieces(
-            #     which_pieces_flipped,  the_game.current_player.get_color())
-            # the_game.add_board()
-            
-            # board_canvas.update()
-
-            # #now get the game ready for the next player
-            # the_game.set_next_player()
-
-            # can the next player go
-            evaluate_for_more_moves()
-
-            if not(the_game.current_player.this_AI==None):
-                time.sleep(.5)
-                spot_chosen(the_game.current_player.this_AI.get_move(the_game))
-                while evaluate_for_more_moves():
-                    time.sleep(1)
+                if not(the_game.current_player.this_AI==None):
+                    time.sleep(.5)
                     spot_chosen(the_game.current_player.this_AI.get_move(the_game))
+                    while evaluate_for_more_moves():
+                        time.sleep(1)
+                        spot_chosen(the_game.current_player.this_AI.get_move(the_game))
+    except AttributeError as error:
+        pass
 
 def evaluate_for_more_moves():
 
@@ -422,11 +422,13 @@ game_progress = Progress_Class(
     root, width=500, height=100, background=get_color('MintCream'), highlightthickness=0)
 game_progress.pack(side=tk.BOTTOM)
 
-
+def key_pressed(event):
+    x=event.char
+    x=1
 
 # this is where the game is played
 # It is not the board
 # the board is mearly a visual representation of the game
 the_game = None
-
+root.bind_all('<Key>', None)
 root.mainloop()

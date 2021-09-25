@@ -13,6 +13,8 @@ class button_class():
         self.y_bottom = y_bottom
         self.tag = tag
 
+    
+
     def is_in_button(self, x, y):
 
         return (x>self.x_top and x<self.x_bottom and y>self.y_top and y<self.y_bottom)
@@ -32,6 +34,27 @@ class Board_Class(tk.Canvas):
         self.board_pieces = []
         
         self.bind("<Button-1>", button_click_event)
+        self.update()
+
+    def create_outline(self, top_x, top_y, bottom_x, bottom_y):
+
+        top_x_coordinate = top_x * self.width_delta-1
+        top_y_coordinate = top_y * self.height_delta-1
+        bottom_x_coordinate = bottom_x * self.width_delta+1
+        bottom_y_coordinate = bottom_y * self.height_delta+1
+
+        self.create_line(top_x_coordinate, top_y_coordinate,
+                         bottom_x_coordinate, top_y_coordinate, width=3, fill=get_color('red'))
+
+        self.create_line(bottom_x_coordinate, top_y_coordinate,
+                         bottom_x_coordinate, bottom_y_coordinate, width=3, fill=get_color('red'))
+
+        self.create_line(bottom_x_coordinate, bottom_y_coordinate,
+                         top_x_coordinate, bottom_y_coordinate, width=3, fill=get_color('red'))
+
+        self.create_line(top_x_coordinate, bottom_y_coordinate,
+                         top_x_coordinate, top_y_coordinate, width=3, fill=get_color('red'))
+
         self.update()
 
     def set_row_column(self, row, column):
@@ -101,7 +124,6 @@ class Board_Class(tk.Canvas):
         if position in self.board_pieces:
             self.delete_piece(position)
 
-        x=1
         self.create_text(int(position[0]*self.width_delta)+4, int(position[1]*self.height_delta)+8, anchor=tk.W, text=text, fill=get_color('black'), tag='square{0}{1}'.format(position[0], position[1]))
 
         self.board_pieces.append(position)
@@ -136,6 +158,9 @@ class Control_Panel_Class(tk.Canvas):
    
     def __init__(self, button_click_event, player1_color, player2_color, * args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.number_rows = 8
+        self.number_columns = 8
 
         self.the_buttons = []
         self.temp=[]
@@ -172,6 +197,12 @@ class Control_Panel_Class(tk.Canvas):
 
         self.bind("<Button-1>", button_click_event)
         self.update()
+
+    def get_number_of_rows(self):
+        return self.number_rows
+
+    def get_number_of_columns(self):
+        return self.number_columns
 
     def set_player_color(self, which_player, color):
         # this_button = self.find_withtag(

@@ -219,6 +219,8 @@ class Game_Class():
             if this_piece.position==position:
                 this_piece.color=color
 
+
+
     def place_piece(self, position):
         # self.add_move(position, self.which_player_turn)
 
