@@ -298,6 +298,15 @@ class Game_Class():
 
         return score
 
+    def calculate_current_player_score(self):
+        score = 0
+
+        for one_piece in self.pieces:
+            if one_piece.color == self.current_player.get_color():
+                    score += 1
+
+        return score
+
     def print_moves(self):
 
         file1 = open('moves.txt', 'w')
@@ -309,3 +318,7 @@ class Game_Class():
             file1.write(one_line)
 
         file1.close()
+
+    def game_over(self):
+        
+        self.game_in_progress=False

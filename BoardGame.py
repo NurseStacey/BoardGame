@@ -148,7 +148,7 @@ def control_panel_event_handler(event):
             if the_game.is_game_in_progress():
                 return
 
-        which_player = 0
+        which_player = 1
         choose_AI_for_player()
 
 
@@ -168,13 +168,26 @@ def step_back_forward(direction):
     the_game.back_forward_move(direction)
 
     new_board = the_game.get_current_board()
+    the_game.set_which_player(current_board.which_player)
+    # if direction == 'go_back':
+    #     the_game.set_which_player(current_board.which_player)
+    # elif direction == 'go_forward':
+    #     the_game.set_which_player(new_board.which_player)
 
-    if direction == 'go_back':
-        the_game.set_which_player(current_board.which_player)
-    elif direction == 'go_forward':
-        the_game.set_which_player(new_board.which_player)
+    #the_game.set_next_player()
 
-    the_game.set_next_player()
+    # while(the_game.current_player.is_AI()):
+    #     time.sleep(.5)
+
+    #     the_game.back_forward_move(direction)
+
+    #     new_board = the_game.get_current_board()
+
+    #     if direction == 'go_back':
+    #         the_game.set_which_player(current_board.which_player)
+    #     elif direction == 'go_forward':
+    #         the_game.set_which_player(new_board.which_player)
+
     the_game.set_pieces_current_board()
 
     pieces_to_remove = []
@@ -321,6 +334,7 @@ def evaluate_for_more_moves():
         if len(the_game.get_valid_moves()) == 0:
                     # in a two player game no one can go.
                     # Will need to make additional changes here for more than two player
+            the_game.game_over()
             update_prorgress_bar('No Moves Left')
         else:
             update_prorgress_bar('No Moves for Player {0}'.format(

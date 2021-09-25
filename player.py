@@ -10,6 +10,8 @@ class Player_Class():
     def set_AI(self, this_AI):
         self.this_AI = this_AI
 
+    def is_AI(self):
+        return not(self.this_AI==None)
     def get_color(self):
 
         return self.player_color_hex
