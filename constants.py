@@ -1,12 +1,7 @@
+BACKSPACE = 8
+
 #colors
 
-
-# 
-# white = '#FFFFFF'
-# lawngreen = '#7CFC00'
-# firebrick = '#B22222'
-# salmon = '#FA8072'
-# cornsilk = '#FFF8DC'
 
 class One_Color():
     def __init__(self, name, hex):
@@ -14,8 +9,7 @@ class One_Color():
         self.hex = hex
 
 def get_color(color_name):
-    
-    x=1 
+
     for one_color in the_colors:
         temp = one_color.name.lower().strip()
 

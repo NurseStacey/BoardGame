@@ -20,7 +20,7 @@ class button_class():
         return (x>self.x_top and x<self.x_bottom and y>self.y_top and y<self.y_bottom)
 
 class Board_Class(tk.Canvas):
-    def __init__(self, button_click_event, * args, **kwargs):
+    def __init__(self, * args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.number_rows = 8
@@ -32,8 +32,9 @@ class Board_Class(tk.Canvas):
         self.width_delta = self.canvas_width/self.number_columns
 
         self.board_pieces = []
+        self.text = []
         
-        self.bind("<Button-1>", button_click_event)
+        # self.bind("<Button-1>", button_click_event)
         self.update()
 
     def create_outline(self, top_x, top_y, bottom_x, bottom_y):
@@ -64,7 +65,25 @@ class Board_Class(tk.Canvas):
         self.width_delta = self.canvas_width/self.number_columns
 
     def set_mouse_event_handler(self, button_click_event):
-        self.bind("<Button-1>", button_click_event)
+
+        if button_click_event==None:
+            self.unbind("<Button-1>")
+        else:
+            self.bind("<Button-1>", button_click_event)
+
+    def set_mouse_release_event_handler(self, button_release_click_event):
+
+        if button_release_click_event == None:
+            self.unbind("<ButtonRelease-1>")
+        else:
+            self.bind("<ButtonRelease-1>", button_release_click_event)
+
+    def set_mouse_motion_handler(self, motion_event):
+        if motion_event == None:
+            self.unbind("<Motion>")
+        else:
+            self.bind("<Motion>", motion_event)
+        self.bind("<Motion>", motion_event)
 
     def build_board(self):
         # this works but it's an extra calculation
@@ -107,7 +126,26 @@ class Board_Class(tk.Canvas):
         for one_piece in self.board_pieces:
             self.delete('square{0}{1}'.format(one_piece[0], one_piece[1]))
 
+        for one_text in self.text:
+            self.delete('text{0}{1}'.format(one_text[0], one_text[1]))
+
+        self.text = []
         self.board_pieces = []
+
+    def set_square_color(self, position, color):
+
+        if position in self.board_pieces:
+            self.delete_piece(position)
+
+        self.create_rectangle(int(position[0]*self.width_delta)+8, int(position[1]*self.height_delta)+8,
+                         int((position[0]+1)*self.width_delta)-8, int((position[1]+1)*self.height_delta)-8,
+                         fill=color, tag='square{0}{1}'.format(position[0], position[1]))
+
+        self.board_pieces.append(position)
+
+        if position in self.text:
+            self.tag_raise('text{0}{1}'.format(
+                position[0], position[1]))
 
     def add_piece(self, position, color):
 
@@ -120,13 +158,26 @@ class Board_Class(tk.Canvas):
 
         self.board_pieces.append(position)
 
-    def add_text(self, position, text):
-        if position in self.board_pieces:
-            self.delete_piece(position)
+    def add_text(self, position, text, anchor_type):
+        
+        if position in self.text:
+            self.delete_text(position)
 
-        self.create_text(int(position[0]*self.width_delta)+4, int(position[1]*self.height_delta)+8, anchor=tk.W, text=text, fill=get_color('black'), tag='square{0}{1}'.format(position[0], position[1]))
+        self.create_text(int(position[0]*self.width_delta), int(position[1]*self.height_delta)+8, 
+            text=text, anchor=anchor_type, fill=get_color('black'), 
+            tag='text{0}{1}'.format(position[0], position[1]))
 
-        self.board_pieces.append(position)
+        self.text.append(position)
+
+
+    def get_color(self, position):
+        return self.itemcget('square{0}{1}'.format(position[0], position[1]), 'fill')
+
+    def get_text(self, position):
+    
+        return self.itemcget('text{0}{1}'.format(position[0], position[1]), 'text')
+
+         
 
     def flip_pieces(self, which_pieces, color):
         
@@ -137,6 +188,10 @@ class Board_Class(tk.Canvas):
     def delete_piece(self, position):
         self.delete('square{0}{1}'.format(position[0], position[1]))
         self.board_pieces.remove(position)
+
+    def delete_text(self, position):
+        self.delete('text{0}{1}'.format(position[0], position[1]))
+        self.text.remove(position)
 
     def create_palatte(self, start_index):
 
@@ -152,7 +207,7 @@ class Board_Class(tk.Canvas):
     def create_AI_list(self, AI_lables):
 
         for row, one_AI in enumerate(AI_lables):
-            self.add_text([int(math.floor(row/8)), (row % 8)+1], one_AI)
+            self.add_text([int(math.floor(row/8)), (row % 8)+1], one_AI, tk.W)
 
 class Control_Panel_Class(tk.Canvas):
    
