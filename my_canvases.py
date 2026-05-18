@@ -96,6 +96,18 @@ class Board_Class(tk.Canvas):
 
         self.board_pieces.append(position)
 
+    def add_text(self, position, this_text):
+        self.create_text(int(position[0]*self.width_delta)+18, 
+                         int(position[1]*self.height_delta)+18,
+                         text=this_text,
+                         font='Arial 20',
+                         tag='text{}{}'.format(position[0], position[1]))
+
+    def delete_text(self, these_positions):
+
+        for one_position in these_positions:
+            self.delete('text{0}{1}'.format(one_position[0], one_position[1]))
+
     def flip_pieces(self, which_pieces, color):
         
         for one_piece in which_pieces:
@@ -149,6 +161,12 @@ class Control_Panel_Class(tk.Canvas):
         self.make_button(30, 300, 60, 330, 'Print Moves',
                          'print_moves', 'lavender')
 
+        self.make_button(120, 300, 150, 330, 'AI Turn',
+                         'ai_turn', 'green')        
+
+        self.make_button(30, 360, 60, 390, 'Show AI scores',
+                         'show_ai_scores', 'beige')
+        
         self.bind("<Button-1>", button_click_event)
         self.update()
 

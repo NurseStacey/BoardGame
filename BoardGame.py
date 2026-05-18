@@ -4,6 +4,7 @@ from game import Game_Class
 from tkinter import messagebox
 from constants import *
 from player import Player_Class
+from artificial_intelligence import AI_Class
 
 def control_panel_event_handler(event):
     x_coordinate = event.x
@@ -55,6 +56,12 @@ def control_panel_event_handler(event):
     if which_button_pressed == 'exit':
         root.destroy()
     
+    if which_button_pressed == 'show_ai_scores':
+        AI_Show_Move_Scores()
+
+    if which_button_pressed=='ai_turn':
+        AI_Move()
+
     if which_button_pressed == 'Back_1_Move':
         
         if the_game.is_the_beginning():
@@ -135,7 +142,6 @@ def control_panel_event_handler(event):
         update_prorgress_bar("Player {0}'s turn".format(
             the_game.current_player.get_player_number()+1))
 
-    # if control_panel.start_button_clicked(x_coordinate, y_coordinate):
     if which_button_pressed == 'start':
         board_canvas.set_row_column(8, 8)
         board_canvas.build_board()
@@ -143,20 +149,15 @@ def control_panel_event_handler(event):
         initialize_game_board()
         return
 
-    # if control_panel.test_button_clicked(x_coordinate, y_coordinate):
-    # if which_button_pressed == 'player_1_color':
-    #     board_canvas.delete_piece([3, 3])
-    #     x=1
 
     which_player = 0
     start_index = 0
-    # if control_panel.change_player_1_color_clicked(x_coordinate, y_coordinate):
+
     if which_button_pressed == 'player_1_color':
         if not the_game.is_game_in_progress():
             which_player=0
             choose_color_for_player()
 
-   # if control_panel.change_player_2_color_clicked(x_coordinate, y_coordinate):
     if which_button_pressed == 'player_2_color':
         if not the_game.is_game_in_progress():
             which_player = 1
@@ -174,36 +175,64 @@ def play_board_event_handler(event):
             [x_coordinate, y_coordinate])
 
         if the_game.is_valid_move(grid_position):
-            which_pieces_flipped = the_game.place_piece(grid_position)
+            make_move(grid_position)
 
-            #  update the board
-            # this is not the game, just represents the game visually
 
-            place_piece(
-                grid_position, the_game.current_player.get_color(), which_pieces_flipped)
-            board_canvas.flip_pieces(
-                which_pieces_flipped,  the_game.current_player.get_color())
-            the_game.add_board()
-            
-            board_canvas.update()
+def make_move(the_move):
+    which_pieces_flipped = the_game.place_piece(the_move)
 
-            #now get the game ready for the next player
-            the_game.set_next_player()
+    #  update the board
+    # this is not the game, just represents the game visually
 
-            # can the next player go
-            if len(the_game.get_valid_moves())==0:
-                this_player = the_game.current_player
-                the_game.set_next_player()
-                if len(the_game.get_valid_moves()) == 0:
-                    # in a two player game no one can go.  
-                    # Will need to make additional changes here for more than two player
-                    update_prorgress_bar('No Moves Left')
-                else:
-                    update_prorgress_bar('No Moves for Player {0}'.format(
-                        this_player.get_player_number()+1))
-            else:
-                update_prorgress_bar("Player {0}'s turn".format(
-                    the_game.current_player.get_player_number()+1))
+    place_piece(
+        the_move, the_game.current_player.get_color(), which_pieces_flipped)
+    board_canvas.flip_pieces(
+        which_pieces_flipped,  the_game.current_player.get_color())
+    the_game.add_board()
+    
+    board_canvas.update()
+
+    #now get the game ready for the next player
+    the_game.set_next_player()
+
+    if not IsGameOver():
+        update_prorgress_bar('')
+
+def IsGameOver():
+
+    # can the next player go
+    if len(the_game.get_valid_moves())==0:
+        this_player = the_game.current_player
+        the_game.set_next_player()
+        if len(the_game.get_valid_moves()) == 0:
+            # in a two player game no one can go.  
+            # Will need to make additional changes here for more than two player
+            update_prorgress_bar('No Moves Left')
+        else:
+            update_prorgress_bar('No Moves for Player {0}'.format(
+                this_player.get_player_number()+1))
+        return True
+    else:
+        update_prorgress_bar("Player {0}'s turn".format(
+            the_game.current_player.get_player_number()+1))
+        return False
+                 
+def AI_Show_Move_Scores():
+    global AI_Moves_Text
+
+    AI_var = AI_Class(the_game)
+    AI_Moves_Text=AI_var.GetPossibleMoves()
+
+    for one_move in AI_Moves_Text:
+        board_canvas.add_text(one_move['position'], one_move['score'])
+
+def AI_Move():
+    board_canvas.delete_text([x['position'] for x in AI_Moves_Text])
+    AI_var = AI_Class(the_game)
+    the_move=AI_var.GetMove()
+
+    make_move(the_move)
+    
             
 def update_prorgress_bar(message):
     current_score = the_game.calculate_score()
@@ -227,6 +256,7 @@ def start_game():
     
     game_progress.start_game()
     the_game.start_game(the_players[0])
+    update_prorgress_bar('')
 
 def set_rows_columns(rows, columns):
     the_game.set_number_rows_columns(rows, columns)
@@ -255,7 +285,7 @@ game_progress = Progress_Class(
     root, width=500, height=100, background=get_color('MintCream'), highlightthickness=0)
 game_progress.pack(side=tk.BOTTOM)
 
-
+AI_Moves_Text=[]
 
 # this is where the game is played
 # It is not the board

@@ -10,6 +10,16 @@ class One_Piece_Class():
         self.color = color
         self.action = action
 
+    def get_color_name(self):
+        if self.color=='#FFFFFF':
+            return 'white'
+        else:
+            return 'black'
+        
+    def __repr__(self):
+
+        return('{} - x={}, y={}'.format(self.get_color_name(),self.position[0], self.position[1]))
+    
 class One_Board_Class():
 
     def __init__(self, which_player, this_board):
@@ -36,10 +46,13 @@ class Game_Class():
         self.number_rows=8
         self.number_columns = 8
         self.the_players = the_players
-
+        self.current_player = None
         self.the_boards = [] 
         self.which_move = 0
 
+    def get_alll_pieces(self):
+        return self.pieces
+    
     def set_pieces_current_board(self):
 
         self.pieces = []
