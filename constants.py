@@ -13,14 +13,15 @@ class One_Color():
         self.name = name
         self.hex = hex
 
+def get_color_hex(color_name):
+    try:
+        return next(iter([x for x in the_colors if x.name.lower().strip()==color_name.lower()]), None).hex
+    except:
+        return '#000000'
+    
 def get_color(color_name):
     
-    x=1 
-    for one_color in the_colors:
-        temp = one_color.name.lower().strip()
-
-        if color_name.lower() == one_color.name.lower().strip():
-            return(one_color.hex)
+    return next(iter([x for x in the_colors if x.name.lower().strip()==color_name.lower()]), None)
 
 the_colors = []
 
@@ -169,3 +170,28 @@ the_colors.append(One_Color('Light Green', '#BBFFFF'))
 the_colors.append(One_Color('WhiteSmoke ', '#F5F5F5'))
 the_colors.append(One_Color('Yellow ', '#FFFF00'))
 the_colors.append(One_Color('YellowGreen ', '#9ACD32'))
+
+
+class OneButton():
+    def __init__(self, x1,  y1, x2, y2, tag_name, text, color ):
+        self.x1=x1
+        self.x2=x2
+        self.y1=y1
+        self.y2=y2
+        self.tag_name=tag_name
+        self.text=text
+        self.color=color
+
+all_buttons = [
+    OneButton(30,30,60,60,'exit', 'EXIT', 'firebrick'),
+    OneButton(120,30,150,60,'start', 'START', 'lawngreen'),
+    OneButton(30,120,60,150,'player_1_color', 'Player 1 Color', 'white'),
+    OneButton(120,120,150,150,'player_2_color', 'Player 2 Color', 'black'),
+    OneButton(30,210,60,240,'Back_1_Move', 'Back 1 Move', 'teal'),
+    OneButton(120,210,150,240,'Forward_1_Move', 'Forward 2 Move', 'YellowGreen'),
+    OneButton(30,300,60,330,'show_ai_scores','Show AI scores', 'beige'),
+    OneButton(120,300,150,330,'ai_turn', 'AI Turn', 'green'),
+    OneButton(30,390,60,420,'player_one_who','Player 1 Human', 'Coral'),
+    OneButton(120,390,150,420,'player_two_who', 'Player 2 AI', 'DarkSeaGreen'),        
+    OneButton(30,480,60,510,'autoAI','Auto AI', 'RebeccaPurple'),    
+]

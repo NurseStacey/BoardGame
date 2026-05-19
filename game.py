@@ -277,6 +277,9 @@ class Game_Class():
         
         return pieces_flipped
 
+    def get_next_turn_text(self):
+        return '{}\'s turn'.format(self.current_player.get_color_name())
+    
     def set_next_player(self):
 
         for which_player in range(len(self.the_players)):

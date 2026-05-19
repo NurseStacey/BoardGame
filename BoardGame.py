@@ -1,12 +1,15 @@
 import tkinter as tk
 from my_canvases import Board_Class, Control_Panel_Class, Progress_Class
 from game import Game_Class
-from tkinter import messagebox
 from constants import *
 from player import Player_Class
 from artificial_intelligence import AI_Class
+import time
 
 def control_panel_event_handler(event):
+    global the_game
+    global AI_Automatically_Goes
+    
     x_coordinate = event.x
     y_coordinate = event.y
 
@@ -56,6 +59,30 @@ def control_panel_event_handler(event):
     if which_button_pressed == 'exit':
         root.destroy()
     
+    if which_button_pressed == 'autoAI':
+        AI_Automatically_Goes = not AI_Automatically_Goes
+        control_panel.change_AI_auto_button(AI_Automatically_Goes)
+
+    if which_button_pressed == 'player_one_who':
+        the_players[0].ChangeIsHuman()
+
+        control_panel.change_Player_one_type(the_players[0].is_human)
+
+    if which_button_pressed == 'player_two_who':
+        the_players[1].ChangeIsHuman()
+        control_panel.change_Player_two_type(the_players[1].is_human)
+        
+    # if which_button_pressed =='AI_goes_first':
+    #     board_canvas.set_row_column(8, 8)
+    #     board_canvas.build_board()
+    #     the_game = Game_Class(the_players)
+    #     set_rows_columns(8, 8)
+    #     start_game()
+    #     initialize_game_board()
+    #     AI_Move()
+    #     return        
+        
+
     if which_button_pressed == 'show_ai_scores':
         AI_Show_Move_Scores()
 
@@ -145,8 +172,14 @@ def control_panel_event_handler(event):
     if which_button_pressed == 'start':
         board_canvas.set_row_column(8, 8)
         board_canvas.build_board()
+        the_game = Game_Class(the_players)
+        set_rows_columns(8, 8)
         start_game()
         initialize_game_board()
+
+        if the_players[0].IsAI() and AI_Automatically_Goes:
+            AI_Move()
+
         return
 
 
@@ -196,7 +229,10 @@ def make_move(the_move):
     the_game.set_next_player()
 
     if not IsGameOver():
-        update_prorgress_bar('')
+        update_prorgress_bar(the_game.get_next_turn_text())
+
+    if the_game.current_player.IsAI() and AI_Automatically_Goes:
+        AI_Move()
 
 def IsGameOver():
 
@@ -227,9 +263,17 @@ def AI_Show_Move_Scores():
         board_canvas.add_text(one_move['position'], one_move['score'])
 
 def AI_Move():
+
+    time.sleep(0.75)
+    if IsGameOver():
+        return
+    
     board_canvas.delete_text([x['position'] for x in AI_Moves_Text])
     AI_var = AI_Class(the_game)
     the_move=AI_var.GetMove()
+
+    if the_move==None:
+        return
 
     make_move(the_move)
     
@@ -271,18 +315,21 @@ root.title('Board Game')
 the_players = []
 the_players.append(Player_Class(get_color('white'), 0))
 the_players.append(Player_Class(get_color('black'), 1))
+the_players[1].ChangeIsHuman()
+
+AI_Automatically_Goes = True
 
 #   Make the different canvases
 control_panel = Control_Panel_Class(control_panel_event_handler, the_players[0].get_color(), the_players[1].get_color(),
-                                    root, width=250, height=600, background=get_color('LightGoldenrodYellow'), highlightthickness=0)
+                                    root, width=250, height=600, background=get_color('LightGoldenrodYellow').hex, highlightthickness=0)
 control_panel.pack(side=tk.LEFT)
 
 board_canvas = Board_Class(play_board_event_handler, root, width=500,
-                           height=500, background=get_color('Light Green'), highlightthickness=0)
+                           height=500, background=get_color('Light Green').hex, highlightthickness=0)
 board_canvas.pack(side=tk.TOP)
 
 game_progress = Progress_Class(
-    root, width=500, height=100, background=get_color('MintCream'), highlightthickness=0)
+    root, width=500, height=100, background=get_color('MintCream').hex, highlightthickness=0)
 game_progress.pack(side=tk.BOTTOM)
 
 AI_Moves_Text=[]
@@ -290,7 +337,8 @@ AI_Moves_Text=[]
 # this is where the game is played
 # It is not the board
 # the board is mearly a visual representation of the game
-the_game = Game_Class(the_players)
-set_rows_columns(8, 8)
+the_game = None
+
+
 
 root.mainloop()

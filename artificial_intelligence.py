@@ -77,6 +77,9 @@ class AI_Class():
         self.calculate_position_scores()
         possible_moves = self.the_game.get_valid_moves()
         
+        if len(possible_moves)==0:
+            return None
+        
         best_score = -100000000
         best_moves=[]
         for one_move in possible_moves:
@@ -101,12 +104,12 @@ class AI_Class():
         return_value = 0
         number_columns = the_game.number_columns
         number_rows = the_game.number_rows
-        current_player_coler = the_game.current_player.player_color_hex
+        current_player_color = the_game.current_player.player_color
 
         for one_piece in the_game.get_alll_pieces():
             player_factor = -2
             score=-1
-            if one_piece.color == current_player_coler:
+            if one_piece.color == current_player_color:
                 player_factor = 2
                 score=1
 

@@ -2,8 +2,6 @@ import tkinter as tk
 import math
 from constants import *
 
-#position = [x,y]
-
 class button_class():
     def __init__(self, x_top, y_top, x_bottom, y_bottom, tag):
         self.x_top=x_top
@@ -43,24 +41,19 @@ class Board_Class(tk.Canvas):
         self.bind("<Button-1>", button_click_event)
 
     def build_board(self):
-        # this works but it's an extra calculation
-        # canvas_width = self.winfo_width()
-        # canvas_height = self.winfo_height()
 
-        # height_delta = canvas_height/self.number_rows
-        # width_delta = canvas_width/self.number_columns
         self.delete("all")
 
         for index in range(self.number_rows+1):
             # because we end at the max height-1, not max height
             this_y = min(self.canvas_height-1, self.height_delta*index)
             self.create_line(0, this_y, self.canvas_width,
-                             this_y, fill=get_color('black'))
+                             this_y, fill=get_color_hex('black'))
 
         for index in range(self.number_columns+1):
             this_x = min(self.canvas_width-1, self.width_delta*index)
             self.create_line(this_x, 0, this_x,
-                             self.canvas_height, fill=get_color('black'))
+                             self.canvas_height, fill=get_color_hex('black'))
 
     # coordinate is the screen coordinate
     # grid refers to the playing board
@@ -92,7 +85,7 @@ class Board_Class(tk.Canvas):
 
         self.create_oval(int(position[0]*self.width_delta)+8, int(position[1]*self.height_delta)+8,
                          int((position[0]+1)*self.width_delta)-8, int((position[1]+1)*self.height_delta)-8,
-                         fill=color, tag='square{0}{1}'.format(position[0], position[1]))
+                         fill=color.hex, tag='square{0}{1}'.format(position[0], position[1]))
 
         self.board_pieces.append(position)
 
@@ -136,36 +129,48 @@ class Control_Panel_Class(tk.Canvas):
 
         self.the_buttons = []
         self.temp=[]
+
+        for one_button in all_buttons:
+            self.make_button_new(one_button)
         #  exit button
-        self.make_button(30, 30, 60, 60, 'EXIT',
-                         'exit', get_color('firebrick'))
+        # self.make_button(30, 30, 60, 60, 'EXIT',
+        #                  'exit', get_color_hex('firebrick'))
 
         #   start button
-        self.make_button(120, 30, 150, 60, 'START',
-                         'start', get_color('lawngreen'))
+        # self.make_button(120, 30, 150, 60, 'START',
+        #                  'start', get_color_hex('lawngreen'))
 
         #   select player 1 color button
-        self.make_button(30, 120, 60, 150, 'Player 1 Color',
-                         'player_1_color', player1_color)
+        # self.make_button(30, 120, 60, 150, 'Player 1 Color',
+        #                  'player_1_color', player1_color.hex)
 
-        #   select player 2 color button
-        self.make_button(120, 120, 150, 150, 'Player 2 Color', 'player_2_color', player2_color)
+        # #   select player 2 color button
+        # self.make_button(120, 120, 150, 150, 'Player 2 Color', 'player_2_color', player2_color.hex)
 
 
-        self.make_button(30, 210, 60, 240, 'Back 1 Move',
-                         'Back_1_Move', 'teal')
+        # self.make_button(30, 210, 60, 240, 'Back 1 Move',
+        #                  'Back_1_Move', 'teal')
 
-        self.make_button(120, 210, 150, 240, 'Forward 1 Move',
-                         'Forward_1_Move', 'teal')
+        # self.make_button(120, 210, 150, 240, 'Forward 1 Move',
+        #                  'Forward_1_Move', 'teal')
 
-        self.make_button(30, 300, 60, 330, 'Print Moves',
-                         'print_moves', 'lavender')
+        # self.make_button(30, 300, 60, 330, 'Print Moves',
+        #                  'print_moves', 'lavender')
 
-        self.make_button(120, 300, 150, 330, 'AI Turn',
-                         'ai_turn', 'green')        
+        # self.make_button(120, 300, 150, 330, 'AI Turn',
+        #                  'ai_turn', 'green')        
 
-        self.make_button(30, 360, 60, 390, 'Show AI scores',
-                         'show_ai_scores', 'beige')
+        # self.make_button(30, 390, 60, 420, 'Show AI scores',
+        #                  'show_ai_scores', 'beige')
+
+        # self.make_button(120, 480, 150, 510, 'Player 1 is Human',
+        #                  'player_one_who', 'HotPink')
+
+        # self.make_button(30, 480, 60, 510, 'Player 2 is Computer',
+        #                  'player_two_who', 'Coral')
+
+        # self.make_button(120, 390, 150, 420, 'AI goes first',
+        #                  'AI_goes_first', 'DarkSeaGreen')
         
         self.bind("<Button-1>", button_click_event)
         self.update()
@@ -174,20 +179,88 @@ class Control_Panel_Class(tk.Canvas):
         # this_button = self.find_withtag(
         #     'button-player_{0}_color'.format(which_player+1))
         self.itemconfig(
-            'button-player_{0}_color'.format(which_player+1), fill=color)
+            'button-player_{0}_color'.format(which_player+1), fill=color.hex)
 
         # self.itemconfigure(self.temp[0], fill='blue')
         self.update()
 
-    def make_button(self, x_top, y_top, x_bottom, y_bottom, button_text, tag, color):
-        this_button = button_class(x_top, y_top, x_bottom, y_bottom, tag)
-        self.the_buttons.append(this_button)
-        x = self.create_rectangle(this_button.x_top, this_button.y_top, this_button.x_bottom,
-        this_button.y_bottom, outline = get_color('black'), fill = color, tag = 'button-'+tag)
+    def update_button_text(self, tag, new_text):
 
-        self.temp.append(x)
-        self.create_text((this_button.x_top + this_button.x_bottom)/2, this_button.y_top-2-10, fill = get_color('black'),
-                         font='Times 10', text=button_text, width=150)
+        pass
+        self.delete(tag)
+
+    def change_AI_auto_button(self, AI_Auto):
+        coor=self.coords('text-autoAI')
+        self.delete('text-autoAI')
+
+        new_text ='Not Auto AI'
+        if AI_Auto:
+            new_text='Auto AI'
+
+        self.create_text(coor, fill = get_color_hex('black'),
+                        font='Times 10', 
+                        text=new_text, 
+                        width=150, 
+                        tag='text-autoAI')            
+
+    def change_Player_one_type(self, is_human):
+        coor=self.coords('text-player_one_who')
+        self.delete('text-player_one_who')
+
+        new_text ='Player 1 Human'
+        if not is_human:
+            new_text='Player 2 AI'
+
+        self.create_text(coor, fill = get_color_hex('black'),
+                        font='Times 10', 
+                        text=new_text, 
+                        width=150, 
+                        tag='text-player_one_who')            
+
+        pass
+
+    def change_Player_two_type(self, is_human):
+        
+        coor=self.coords('text-player_two_who')
+        self.delete('text-player_two_who')
+        new_text ='Player 1 Human'
+        if not is_human:
+            new_text='Player 2 AI'
+
+        self.create_text(coor, fill = get_color_hex('black'),
+                        font='Times 10', 
+                        text=new_text, 
+                        width=150, 
+                        tag='text-player_two_who')                 
+
+        pass
+    
+    def make_button_new(self, one_button):
+
+        try:
+            this_button = button_class(one_button.x1, one_button.y1, one_button.x2, one_button.y2, one_button.tag_name)
+            self.the_buttons.append(this_button)
+
+            this_color_hex=get_color_hex(one_button.color)
+            x = self.create_rectangle(this_button.x_top, this_button.y_top, this_button.x_bottom,
+            this_button.y_bottom, outline = get_color_hex('black'), fill = this_color_hex, tag = 'button-'+one_button.tag_name)
+
+            self.temp.append(x)
+            self.create_text((this_button.x_top + this_button.x_bottom)/2, this_button.y_top-2-10, fill = get_color_hex('black'),
+                            font='Times 10', text=one_button.text, width=150, tag='text-{}'.format(one_button.tag_name))
+
+        except:
+            pass
+
+    # def make_button(self, x_top, y_top, x_bottom, y_bottom, button_text, tag, color):
+    #     this_button = button_class(x_top, y_top, x_bottom, y_bottom, tag)
+    #     self.the_buttons.append(this_button)
+    #     x = self.create_rectangle(this_button.x_top, this_button.y_top, this_button.x_bottom,
+    #     this_button.y_bottom, outline = get_color_hex('black'), fill = color, tag = 'button-'+tag)
+
+    #     self.temp.append(x)
+    #     self.create_text((this_button.x_top + this_button.x_bottom)/2, this_button.y_top-2-10, fill = get_color_hex('black'),
+    #                      font='Times 10', text=button_text, width=150, tag='text-{}'.format(tag))
 
     def which_button_pressed(self, x, y):
 
@@ -220,22 +293,22 @@ class Progress_Class(tk.Canvas):
         width = kwargs['width']
         height = kwargs['height']
         
-        self.whos_turn = self.create_text(width/2, height-20, fill=get_color('black'),
+        self.whos_turn = self.create_text(width/2, height-20, fill=get_color_hex('black'),
                          font='Times 25', text="Player 1's Turn")
 
         self.score_player1_lable = self.create_text(
-            85, 25, fill=get_color('black'), font='Times 20', text="Player 1")
+            85, 25, fill=get_color_hex('black'), font='Times 20', text="Player 1")
         self.itemconfigure(self.score_player1_lable, state='hidden')
 
         self.score_player1 = self.create_text(
-            85, 50, fill=get_color('black'), font='Times 20', text="0")
+            85, 50, fill=get_color_hex('black'), font='Times 20', text="0")
         self.itemconfigure(self.score_player1, state='hidden')
 
         self.score_player2_lable = self.create_text(
-            width-85, 25, fill=get_color('black'), font='Times 20', text="Player 2")
+            width-85, 25, fill=get_color_hex('black'), font='Times 20', text="Player 2")
 
         self.score_player2 = self.create_text(
-            width-85, 50, fill=get_color('black'), font='Times 20', text="0")
+            width-85, 50, fill=get_color_hex('black'), font='Times 20', text="0")
 
         self.set_states('hidden')
         self.update()
