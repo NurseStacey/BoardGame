@@ -193,5 +193,6 @@ all_buttons = [
     OneButton(120,300,150,330,'ai_turn', 'AI Turn', 'green'),
     OneButton(30,390,60,420,'player_one_who','Player 1 Human', 'Coral'),
     OneButton(120,390,150,420,'player_two_who', 'Player 2 AI', 'DarkSeaGreen'),        
-    OneButton(30,480,60,510,'autoAI','Auto AI', 'RebeccaPurple'),    
+    OneButton(30,480,60,510,'autoAI','Auto AI', 'RebeccaPurple'),
+    OneButton(120,480,150,510,'testAI','TestAI', 'limegreen'),    
 ]

@@ -5,10 +5,13 @@ from constants import *
 from player import Player_Class
 from artificial_intelligence import AI_Class
 import time
+import json
 
 def control_panel_event_handler(event):
     global the_game
     global AI_Automatically_Goes
+    global results_from_test
+    global TestingAI
     
     x_coordinate = event.x
     y_coordinate = event.y
@@ -71,17 +74,19 @@ def control_panel_event_handler(event):
     if which_button_pressed == 'player_two_who':
         the_players[1].ChangeIsHuman()
         control_panel.change_Player_two_type(the_players[1].is_human)
+
+    if which_button_pressed == 'testAI':
+        results_from_test = []
+        TestingAI=True
+
+        start_new_game()
+
+        while len(results_from_test)<25:
+            AI_Move()
+
         
-    # if which_button_pressed =='AI_goes_first':
-    #     board_canvas.set_row_column(8, 8)
-    #     board_canvas.build_board()
-    #     the_game = Game_Class(the_players)
-    #     set_rows_columns(8, 8)
-    #     start_game()
-    #     initialize_game_board()
-    #     AI_Move()
-    #     return        
-        
+        return
+
 
     if which_button_pressed == 'show_ai_scores':
         AI_Show_Move_Scores()
@@ -170,15 +175,9 @@ def control_panel_event_handler(event):
             the_game.current_player.get_player_number()+1))
 
     if which_button_pressed == 'start':
-        board_canvas.set_row_column(8, 8)
-        board_canvas.build_board()
-        the_game = Game_Class(the_players)
-        set_rows_columns(8, 8)
-        start_game()
-        initialize_game_board()
 
-        if the_players[0].IsAI() and AI_Automatically_Goes:
-            AI_Move()
+        start_new_game()
+
 
         return
 
@@ -198,6 +197,20 @@ def control_panel_event_handler(event):
 
     if which_button_pressed == 'print_moves':
         the_game.print_moves()
+
+def start_new_game():
+    #global board_canvas
+    global the_game
+
+    board_canvas.set_row_column(8, 8)
+    board_canvas.build_board()
+    the_game = Game_Class(the_players)
+    set_rows_columns(8, 8)
+    reset_game()
+    initialize_game_board()
+
+    if the_players[0].IsAI() and AI_Automatically_Goes and not TestingAI:
+        AI_Move()
 
 def play_board_event_handler(event):
     
@@ -228,11 +241,14 @@ def make_move(the_move):
     #now get the game ready for the next player
     the_game.set_next_player()
 
+    if the_game==None:
+        pass
+    
     if not IsGameOver():
         update_prorgress_bar(the_game.get_next_turn_text())
 
-    if the_game.current_player.IsAI() and AI_Automatically_Goes:
-        AI_Move()
+    # if the_game.current_player.IsAI() and AI_Automatically_Goes and not TestingAI:
+    #     AI_Move()
 
 def IsGameOver():
 
@@ -263,15 +279,40 @@ def AI_Show_Move_Scores():
         board_canvas.add_text(one_move['position'], one_move['score'])
 
 def AI_Move():
+    global the_game
+    if the_game==None:
+        pass
 
-    time.sleep(0.75)
+    time.sleep(0.1)
     if IsGameOver():
-        return
+        if TestingAI:
+            final_score = the_game.calculate_score()
+            winner='Player 1'
+            if final_score[1]>final_score[0]:
+                winner='Player 2'
+
+            results_from_test.append({
+                'player 1':'{}'.format(final_score[0]),
+                'player 2':'{}'.format(final_score[1]),
+                'winner':winner
+                #'moves':the_game.get_moves_list()
+            })
+
+            the_game=None
+            if len(results_from_test)==10:
+                with open("results.json", "w") as f:
+                    json.dump(results_from_test, f, indent=4)
+                return
+
+            else:
+                start_new_game()
+        else:
+            return
     
     board_canvas.delete_text([x['position'] for x in AI_Moves_Text])
     AI_var = AI_Class(the_game)
     the_move=AI_var.GetMove()
-
+    AI_var=None
     if the_move==None:
         return
 
@@ -296,7 +337,7 @@ def initialize_game_board():
 
     the_game.add_board()
 
-def start_game():
+def reset_game():
     
     game_progress.start_game()
     the_game.start_game(the_players[0])
@@ -318,6 +359,8 @@ the_players.append(Player_Class(get_color('black'), 1))
 the_players[1].ChangeIsHuman()
 
 AI_Automatically_Goes = True
+TestingAI=False
+results_from_test=[]
 
 #   Make the different canvases
 control_panel = Control_Panel_Class(control_panel_event_handler, the_players[0].get_color(), the_players[1].get_color(),

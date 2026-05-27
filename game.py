@@ -318,3 +318,15 @@ class Game_Class():
             file1.write(one_line)
 
         file1.close()
+
+    def get_moves_list(self):
+        return_value = []
+
+        for one_move in self.moves:
+            return_value.append({
+                'x':one_move.position[0],
+                'y':one_move.position[1],
+                'color':one_move.color.name
+            })
+
+        return return_value

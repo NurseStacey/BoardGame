@@ -74,30 +74,36 @@ class AI_Class():
                 
     
     def GetMove(self):
-        self.calculate_position_scores()
-        possible_moves = self.the_game.get_valid_moves()
-        
-        if len(possible_moves)==0:
-            return None
-        
-        best_score = -100000000
-        best_moves=[]
-        for one_move in possible_moves:
-            game_copy = copy.deepcopy(self.the_game)
 
-            which_pieces_flipped = game_copy.place_piece(one_move)
-            game_copy.add_move(one_move, game_copy.current_player.get_color(), which_pieces_flipped)
-            this_move_score = self.value_board(game_copy)
-            if this_move_score==best_score:
-                best_moves.append(one_move)
-            elif this_move_score>best_score:
-                best_moves=[one_move]
-                best_score=this_move_score
+        try:
+            self.calculate_position_scores()
+            possible_moves = self.the_game.get_valid_moves()
+            
+            if len(possible_moves)==0:
+                return None
+            
+            best_score = -100000000
+            best_moves=[]
+            for one_move in possible_moves:
+                game_copy = copy.deepcopy(self.the_game)
 
-        if len(best_moves)==1:
-            return best_moves[0]
-        else:
-            return best_moves[random.randint(0,len(best_moves)-1)] 
+                which_pieces_flipped = game_copy.place_piece(one_move)
+                game_copy.add_move(one_move, game_copy.current_player.get_color(), which_pieces_flipped)
+                this_move_score = self.value_board(game_copy)
+                if this_move_score==best_score:
+                    best_moves.append(one_move)
+                elif this_move_score>best_score:
+                    best_moves=[one_move]
+                    best_score=this_move_score
+
+            if len(best_moves)==1:
+                return best_moves[0]
+            else:
+                return best_moves[random.randint(0,len(best_moves)-1)] 
+        
+        except Exception as e:
+            print(e)
+            pass
 
     def value_board(self,the_game):
 
