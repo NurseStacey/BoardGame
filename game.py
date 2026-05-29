@@ -1,6 +1,6 @@
 import copy
 from player import Player_Class
-
+from constants import NUMBER_ROWS, NUMBER_COLUMNS
 #position = [x,y]
 class One_Piece_Class():
 
@@ -43,8 +43,8 @@ class Game_Class():
         self.moves = []
         self.pieces = []
         self.game_in_progress = False
-        self.number_rows=8
-        self.number_columns = 8
+        self.number_rows=NUMBER_COLUMNS
+        self.number_columns = NUMBER_ROWS
         self.the_players = the_players
         self.current_player = None
         self.the_boards = [] 

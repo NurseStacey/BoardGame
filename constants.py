@@ -13,6 +13,12 @@ class One_Color():
         self.name = name
         self.hex = hex
 
+    def __eq__(self,other):
+        if other==-1:
+            return False
+        
+        return self.hex==other.hex
+
 def get_color_hex(color_name):
     try:
         return next(iter([x for x in the_colors if x.name.lower().strip()==color_name.lower()]), None).hex
@@ -195,4 +201,30 @@ all_buttons = [
     OneButton(120,390,150,420,'player_two_who', 'Player 2 AI', 'DarkSeaGreen'),        
     OneButton(30,480,60,510,'autoAI','Auto AI', 'RebeccaPurple'),
     OneButton(120,480,150,510,'testAI','TestAI', 'limegreen'),    
+    OneButton(30,570,60,600,'review_results','Review Results', 'Red'),    
 ]
+
+
+NUMBER_COLUMNS = 8
+NUMBER_ROWS=8
+NUMBER_OF_TEST_CASES = 25
+
+AI_MATRICES = [
+        [
+                [0,0,0,0],
+                [None,0,0,0],
+                [None,None,0,0],
+                [None,None,None,0],
+        ],    
+        [
+            [10,-10,5,5],
+            [None,-10,4,4],
+            [None,None,4,3],
+            [None,None,None,2],
+        ],         
+]
+
+def get_AI_Matrix(which_AI):
+
+    return AI_MATRICES[which_AI]
+   

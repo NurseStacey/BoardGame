@@ -223,7 +223,7 @@ class Control_Panel_Class(tk.Canvas):
         
         coor=self.coords('text-player_two_who')
         self.delete('text-player_two_who')
-        new_text ='Player 1 Human'
+        new_text ='Player 2 Human'
         if not is_human:
             new_text='Player 2 AI'
 

@@ -3,9 +3,128 @@ from my_canvases import Board_Class, Control_Panel_Class, Progress_Class
 from game import Game_Class
 from constants import *
 from player import Player_Class
-from artificial_intelligence import AI_Class
+from artificial_intelligence import AI_Class,calculate_position_scores
 import time
 import json
+
+SAVED_GAME_MOVES = []
+
+def Back_One_Move():
+    if the_game.is_the_beginning():
+        return
+
+    current_board = the_game.get_current_board()
+    the_game.back_one_move()
+    new_board = the_game.get_current_board()
+    the_game.set_which_player(current_board.which_player)
+    the_game.set_pieces_current_board()
+
+    pieces_to_remove = []
+    pieces_to_flip = []
+    pieces_to_add = [] #for othello this is always empty
+    # now we compare the current_board with prior_board
+    for one_piece in current_board.this_board:
+        new_piece = new_board.find_piece(one_piece)
+        if  new_piece == -1:  # need to remove this piece
+            pieces_to_remove.append(one_piece)
+        elif not(new_piece.color == one_piece.color):
+            pieces_to_flip.append(new_piece)
+
+    for one_piece in new_board.this_board:
+        same_piece = current_board.find_piece(one_piece)
+        if same_piece == -1:
+            pieces_to_add.append(one_piece)
+
+    # now take care of canvas
+    for one_piece in pieces_to_remove:
+        board_canvas.delete_piece(one_piece.position)
+
+    for one_piece in pieces_to_add:
+        board_canvas.add_piece(one_piece.position, one_piece.color)
+
+    for one_piece in pieces_to_flip:
+        board_canvas.add_piece(one_piece.position, one_piece.color)
+
+    if not IsGameOver():
+        update_prorgress_bar(the_game.get_next_turn_text())   
+
+def Forward_One_Move():
+    # basically the same as before but in reverse
+    if the_game.is_the_end():
+        return
+
+    current_board = the_game.get_current_board()
+    the_game.forward_one_move()
+    new_board = the_game.get_current_board()
+    the_game.set_which_player(new_board.which_player)
+    the_game.set_next_player()
+    the_game.set_pieces_current_board()
+
+    pieces_to_remove = []
+    pieces_to_flip = []
+    pieces_to_add = []  # for othello this is always empty
+    # now we compare the current_board with prior_board
+    for one_piece in current_board.this_board:
+        new_piece = new_board.find_piece(one_piece)
+        if new_piece == -1:  # need to remove this piece
+            pieces_to_remove.append(one_piece)
+        elif not(new_piece.color == one_piece.color):
+            pieces_to_flip.append(new_piece)
+
+    for one_piece in new_board.this_board:
+        same_piece = current_board.find_piece(one_piece)
+        if same_piece == -1:
+            pieces_to_add.append(one_piece)
+
+    # now take care of canvas
+    for one_piece in pieces_to_remove:
+        board_canvas.delete_piece(one_piece.position)
+
+    for one_piece in pieces_to_add:
+        board_canvas.add_piece(one_piece.position, one_piece.color)
+
+    for one_piece in pieces_to_flip:
+        board_canvas.add_piece(one_piece.position, one_piece.color)
+
+    if not IsGameOver():
+        update_prorgress_bar(the_game.get_next_turn_text())
+
+class OneMoveEvent():
+    def __init__(self,**kwargs):
+        self.x=kwargs['x']
+        self.y=kwargs['y']
+
+def open_review_popup():
+    
+    def LoadGame():
+        nonlocal selected_option
+        nonlocal all_results
+        global TestingAI
+
+        these_moves=next(x['moves'] for x in all_results if x['which_game']==int(selected_option.get()))
+        TestingAI=True
+        start_new_game()
+        root.update()
+        for one_move in these_moves[4:]:
+            play_board_event_handler(OneMoveEvent(**one_move))
+            root.update()
+        for index in range(len(these_moves)-4):
+            Back_One_Move()
+
+    top = tk.Toplevel(root)
+    top.geometry("500x400")
+    top.title("Review Results")
+    tk.Label(top, text="Review Results").pack(pady=10)
+
+    this_file=open('results.json', 'r')
+    all_results = json.load(this_file)
+    which_games=[x['which_game'] for x in all_results]
+    selected_option = tk.StringVar(top)
+    dropdown = tk.OptionMenu(top, selected_option, *which_games)
+    dropdown.pack(pady=20)
+
+    tk.Button(top, text="Close", command=top.destroy).pack()
+    tk.Button(top, text="Load Game", command=LoadGame).pack()
 
 def control_panel_event_handler(event):
     global the_game
@@ -13,6 +132,7 @@ def control_panel_event_handler(event):
     global results_from_test
     global TestingAI
     
+    start_index=0
     x_coordinate = event.x
     y_coordinate = event.y
 
@@ -75,18 +195,23 @@ def control_panel_event_handler(event):
         the_players[1].ChangeIsHuman()
         control_panel.change_Player_two_type(the_players[1].is_human)
 
+    if which_button_pressed == 'review_results':
+        open_review_popup()
+
     if which_button_pressed == 'testAI':
         results_from_test = []
         TestingAI=True
 
         start_new_game()
 
-        while len(results_from_test)<25:
+        calculate_position_scores(1)
+        while len(results_from_test)<NUMBER_OF_TEST_CASES:
             AI_Move()
 
-        
-        return
+        with open("results.json", "w") as f:
+            json.dump(results_from_test, f, indent=4)
 
+        return
 
     if which_button_pressed == 'show_ai_scores':
         AI_Show_Move_Scores()
@@ -95,95 +220,17 @@ def control_panel_event_handler(event):
         AI_Move()
 
     if which_button_pressed == 'Back_1_Move':
-        
-        if the_game.is_the_beginning():
-            return
-
-        current_board = the_game.get_current_board()
-        the_game.back_one_move()
-        new_board = the_game.get_current_board()
-        the_game.set_which_player(current_board.which_player)
-        the_game.set_pieces_current_board()
-
-        pieces_to_remove = []
-        pieces_to_flip = []
-        pieces_to_add = [] #for othello this is always empty
-        # now we compare the current_board with prior_board
-        for one_piece in current_board.this_board:
-            new_piece = new_board.find_piece(one_piece)
-            if  new_piece == -1:  # need to remove this piece
-                pieces_to_remove.append(one_piece)
-            elif not(new_piece.color == one_piece.color):
-                pieces_to_flip.append(new_piece)
-
-        for one_piece in new_board.this_board:
-            same_piece = current_board.find_piece(one_piece)
-            if same_piece == -1:
-                pieces_to_add.append(one_piece)
-
-        # now take care of canvas
-        for one_piece in pieces_to_remove:
-            board_canvas.delete_piece(one_piece.position)
-
-        for one_piece in pieces_to_add:
-            board_canvas.add_piece(one_piece.position, one_piece.color)
-
-        for one_piece in pieces_to_flip:
-            board_canvas.add_piece(one_piece.position, one_piece.color)
-
-        update_prorgress_bar("Player {0}'s turn".format(the_game.current_player.get_player_number()+1))
-
-    if which_button_pressed == 'Forward_1_Move':
-        # basically the same as before but in reverse
-        if the_game.is_the_end():
-            return
-
-        current_board = the_game.get_current_board()
-        the_game.forward_one_move()
-        new_board = the_game.get_current_board()
-        the_game.set_which_player(new_board.which_player)
-        the_game.set_next_player()
-        the_game.set_pieces_current_board()
-
-        pieces_to_remove = []
-        pieces_to_flip = []
-        pieces_to_add = []  # for othello this is always empty
-        # now we compare the current_board with prior_board
-        for one_piece in current_board.this_board:
-            new_piece = new_board.find_piece(one_piece)
-            if new_piece == -1:  # need to remove this piece
-                pieces_to_remove.append(one_piece)
-            elif not(new_piece.color == one_piece.color):
-                pieces_to_flip.append(new_piece)
-
-        for one_piece in new_board.this_board:
-            same_piece = current_board.find_piece(one_piece)
-            if same_piece == -1:
-                pieces_to_add.append(one_piece)
-
-        # now take care of canvas
-        for one_piece in pieces_to_remove:
-            board_canvas.delete_piece(one_piece.position)
-
-        for one_piece in pieces_to_add:
-            board_canvas.add_piece(one_piece.position, one_piece.color)
-
-        for one_piece in pieces_to_flip:
-            board_canvas.add_piece(one_piece.position, one_piece.color)
-
-        update_prorgress_bar("Player {0}'s turn".format(
-            the_game.current_player.get_player_number()+1))
-
-    if which_button_pressed == 'start':
-
-        start_new_game()
-
-
+        Back_One_Move()
         return
 
+    if which_button_pressed == 'Forward_1_Move':
+        Forward_One_Move()
+        return
 
-    which_player = 0
-    start_index = 0
+    if which_button_pressed == 'start':
+        start_new_game()
+        return
+
 
     if which_button_pressed == 'player_1_color':
         if not the_game.is_game_in_progress():
@@ -201,6 +248,7 @@ def control_panel_event_handler(event):
 def start_new_game():
     #global board_canvas
     global the_game
+    calculate_position_scores(1)
 
     board_canvas.set_row_column(8, 8)
     board_canvas.build_board()
@@ -215,11 +263,17 @@ def start_new_game():
 def play_board_event_handler(event):
     
     if the_game.is_game_in_progress():
-        x_coordinate = event.x
-        y_coordinate = event.y
-        grid_position = board_canvas.convert_coordinates(
-            [x_coordinate, y_coordinate])
 
+        grid_position=None
+
+        if type(event).__name__=='Event':
+            x_coordinate = event.x
+            y_coordinate = event.y
+
+            grid_position = board_canvas.convert_coordinates(
+                [x_coordinate, y_coordinate])
+        else:
+            grid_position=[event.x,event.y]
         if the_game.is_valid_move(grid_position):
             make_move(grid_position)
 
@@ -252,6 +306,8 @@ def make_move(the_move):
 
 def IsGameOver():
 
+    if the_game==None:
+        pass
     # can the next player go
     if len(the_game.get_valid_moves())==0:
         this_player = the_game.current_player
@@ -265,8 +321,8 @@ def IsGameOver():
                 this_player.get_player_number()+1))
         return True
     else:
-        update_prorgress_bar("Player {0}'s turn".format(
-            the_game.current_player.get_player_number()+1))
+        # update_prorgress_bar("Player {0}'s turn".format(
+        #     the_game.current_player.get_player_number()+1))
         return False
                  
 def AI_Show_Move_Scores():
@@ -283,7 +339,7 @@ def AI_Move():
     if the_game==None:
         pass
 
-    time.sleep(0.1)
+    #time.sleep(0.025)
     if IsGameOver():
         if TestingAI:
             final_score = the_game.calculate_score()
@@ -292,20 +348,16 @@ def AI_Move():
                 winner='Player 2'
 
             results_from_test.append({
+                'which_game':len(results_from_test),
                 'player 1':'{}'.format(final_score[0]),
                 'player 2':'{}'.format(final_score[1]),
-                'winner':winner
-                #'moves':the_game.get_moves_list()
+                'winner':winner,
+                'moves':the_game.get_moves_list()
             })
 
             the_game=None
-            if len(results_from_test)==10:
-                with open("results.json", "w") as f:
-                    json.dump(results_from_test, f, indent=4)
-                return
 
-            else:
-                start_new_game()
+            start_new_game()
         else:
             return
     
@@ -385,3 +437,4 @@ the_game = None
 
 
 root.mainloop()
+
